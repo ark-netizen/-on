@@ -13,7 +13,8 @@ dist-ssr
 *.local
 
 # Dev utilities & screenshots
-take-shots.mjs
+*shots*.mjs
+screenshot*.mjs
 *.png
 
 # Editor directories and files
