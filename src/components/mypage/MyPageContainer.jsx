@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PageHeader from './PageHeader'
 import TabBar from './TabBar'
 import UserInfoTab from './UserInfoTab'
@@ -35,11 +35,30 @@ const INITIAL_PREFS = {
   keywords: [],
 }
 
+function isPrefsEmpty(p) {
+  return !p.sido && !p.age && !p.maritalStatus && !p.education &&
+    !p.employmentStatus && p.majorFields.length === 0 &&
+    p.specialFields.length === 0 && p.keywords.length === 0
+}
+
 export default function MyPageContainer() {
   const [activeTab, setActiveTab] = useState('info')
   const [user, setUser]     = useState(MOCK_USER)
   const [prefs, setPrefs]   = useState(INITIAL_PREFS)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [showPrefPrompt, setShowPrefPrompt] = useState(false)
+
+  useEffect(() => {
+    if (isPrefsEmpty(prefs)) {
+      const t = setTimeout(() => setShowPrefPrompt(true), 600)
+      return () => clearTimeout(t)
+    }
+  }, [])
+
+  const handlePrefYes = () => {
+    setShowPrefPrompt(false)
+    setActiveTab('prefs')
+  }
 
   return (
     <div style={styles.page}>
@@ -60,6 +79,36 @@ export default function MyPageContainer() {
             <MetaItem icon="login" label="최근 로그인" value={user.lastLogin.replace(/-/g, '.')} />
           </div>
         </div>
+
+        {/* 맞춤 조건 미설정 안내 모달 */}
+        {showPrefPrompt && (
+          <div style={modal.overlay}>
+            <div style={modal.box}>
+              <span className="material-symbols-rounded" style={{ fontSize: 40, color: '#1D4ED8' }}>tune</span>
+              <div style={modal.title}>맞춤 조건을 설정할까요?</div>
+              <div style={modal.desc}>
+                아직 맞춤 조건이 설정되지 않았습니다.<br />
+                조건을 설정하면 나에게 맞는 정책을 추천받을 수 있어요.
+              </div>
+              <div style={modal.btnRow}>
+                <button
+                  style={modal.btnSecondary}
+                  type="button"
+                  onClick={() => setShowPrefPrompt(false)}
+                >
+                  나중에
+                </button>
+                <button
+                  style={modal.btnPrimary}
+                  type="button"
+                  onClick={handlePrefYes}
+                >
+                  지금 설정하기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 탭 + 콘텐츠 */}
         <div style={styles.tabContainer}>
@@ -161,5 +210,69 @@ const styles = {
   tabContent: {
     backgroundColor: '#f8fafc',
     padding: '24px',
+  },
+}
+
+const modal = {
+  overlay: {
+    position: 'fixed',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  },
+  box: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: '36px 32px',
+    maxWidth: 380,
+    width: '90%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 12,
+    boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: '#111827',
+    marginTop: 4,
+  },
+  desc: {
+    fontSize: 13,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 1.7,
+  },
+  btnRow: {
+    display: 'flex',
+    gap: 10,
+    marginTop: 8,
+    width: '100%',
+  },
+  btnSecondary: {
+    flex: 1,
+    padding: '11px 0',
+    borderRadius: 10,
+    border: '1.5px solid #d1d5db',
+    backgroundColor: '#ffffff',
+    color: '#6b7280',
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: 'pointer',
+  },
+  btnPrimary: {
+    flex: 2,
+    padding: '11px 0',
+    borderRadius: 10,
+    border: 'none',
+    backgroundColor: '#1D4ED8',
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: 'pointer',
   },
 }
