@@ -9,7 +9,6 @@ export default function UserInfoTab({ user, onUpdateUser }) {
       <div style={styles.topGrid}>
         {/* 회원정보 — onEdit 없이 전달 → 수정 버튼 미표시 */}
         <div style={styles.infoCard}>
-          <div style={styles.avatar}>{user.name.charAt(0)}</div>
           <div style={styles.infoBody}>
             <div style={styles.name}>{user.name}</div>
             <div style={styles.email}>{user.email}</div>
@@ -51,7 +50,7 @@ const styles = {
   },
   topGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: '280px 1fr',
     gap: 20,
     alignItems: 'start',
   },
@@ -64,20 +63,6 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: 0,
-  },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: '50%',
-    backgroundColor: '#EFF6FF',
-    border: '2px solid #BFDBFE',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 26,
-    fontWeight: 700,
-    color: '#1D4ED8',
-    marginBottom: 14,
   },
   infoBody: {
     display: 'flex',

@@ -48,7 +48,6 @@ export default function MyPageContainer() {
 
         {/* 프로필 요약 바 */}
         <div style={styles.profileBar}>
-          <div style={styles.avatar}>{user.name.charAt(0)}</div>
           <div>
             <div style={styles.userName}>{user.name}</div>
             <div style={styles.userEmail}>{user.email}</div>

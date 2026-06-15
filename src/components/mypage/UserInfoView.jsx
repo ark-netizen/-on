@@ -7,7 +7,6 @@ export default function UserInfoView({ user, onEdit }) {
   return (
     <div>
       <div style={styles.header}>
-        <div style={styles.avatar}>{user.name.charAt(0)}</div>
         <div>
           <div style={styles.name}>{user.name}</div>
           <div style={styles.email}>{user.email}</div>

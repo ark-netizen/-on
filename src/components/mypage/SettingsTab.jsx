@@ -3,6 +3,7 @@ import UserInfoCard from './UserInfoCard'
 
 export default function SettingsTab({ user, onUpdateUser }) {
   const [showWithdraw, setShowWithdraw] = useState(false)
+  const [showModal, setShowModal]       = useState(false)
 
   return (
     <div style={styles.wrapper}>
@@ -17,33 +18,53 @@ export default function SettingsTab({ user, onUpdateUser }) {
         </div>
 
         <div style={styles.actionRow}>
-          <button style={styles.logoutBtn} type="button">
+          <button style={styles.btn} type="button">
             <span className="material-symbols-rounded" style={{ fontSize: 16 }}>logout</span>
             로그아웃
           </button>
-
-          {!showWithdraw ? (
-            <button
-              style={styles.withdrawLink}
-              type="button"
-              onClick={() => setShowWithdraw(true)}
-            >
-              회원 탈퇴
-            </button>
-          ) : (
-            <div style={styles.withdrawConfirm}>
-              <span style={styles.withdrawWarn}>
-                <span className="material-symbols-rounded" style={{ fontSize: 15, color: '#ef4444', verticalAlign: 'middle' }}>warning</span>
-                {' '}탈퇴 시 모든 데이터가 삭제되며 복구가 불가합니다.
-              </span>
-              <div style={styles.withdrawBtns}>
-                <button style={styles.cancelBtn} type="button" onClick={() => setShowWithdraw(false)}>취소</button>
-                <button style={styles.confirmWithdrawBtn} type="button">탈퇴 확인</button>
-              </div>
-            </div>
-          )}
+          <button style={styles.btn} type="button" onClick={() => setShowWithdraw(v => !v)}>
+            <span className="material-symbols-rounded" style={{ fontSize: 16 }}>person_remove</span>
+            회원 탈퇴
+          </button>
         </div>
+
+        {showWithdraw && (
+          <div style={styles.withdrawBox}>
+            <span style={styles.warnText}>
+              <span className="material-symbols-rounded" style={{ fontSize: 15, verticalAlign: 'middle', color: '#ef4444' }}>warning</span>
+              {' '}탈퇴 시 모든 데이터가 삭제되며 복구가 불가합니다.
+            </span>
+            <div style={styles.withdrawBtns}>
+              <button style={styles.btn} type="button" onClick={() => setShowWithdraw(false)}>취소</button>
+              <button style={styles.btnDanger} type="button" onClick={() => { setShowWithdraw(false); setShowModal(true) }}>
+                탈퇴 확인
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* 탈퇴 확인 모달 */}
+      {showModal && (
+        <div style={modal.overlay} onClick={() => setShowModal(false)}>
+          <div style={modal.box} onClick={e => e.stopPropagation()}>
+            <span className="material-symbols-rounded" style={{ fontSize: 40, color: '#ef4444' }}>sentiment_very_dissatisfied</span>
+            <div style={modal.title}>정말 탈퇴하시겠습니까?</div>
+            <div style={modal.desc}>
+              회원 탈퇴 시 저장된 맞춤 조건, 신청 내역 등<br />
+              모든 데이터가 즉시 삭제되며 복구할 수 없습니다.
+            </div>
+            <div style={modal.btnRow}>
+              <button style={styles.btn} type="button" onClick={() => setShowModal(false)}>
+                취소
+              </button>
+              <button style={styles.btnDanger} type="button">
+                탈퇴하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -73,10 +94,10 @@ const styles = {
   actionRow: {
     display: 'flex',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
     flexWrap: 'wrap',
   },
-  logoutBtn: {
+  btn: {
     display: 'flex',
     alignItems: 'center',
     gap: 6,
@@ -89,26 +110,30 @@ const styles = {
     fontWeight: 600,
     cursor: 'pointer',
   },
-  withdrawLink: {
-    fontSize: 13,
-    color: '#9ca3af',
-    background: 'none',
-    border: 'none',
+  btnDanger: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '9px 20px',
+    borderRadius: 8,
+    border: '1.5px solid #fca5a5',
+    backgroundColor: '#fff5f5',
+    color: '#ef4444',
+    fontSize: 14,
+    fontWeight: 600,
     cursor: 'pointer',
-    textDecoration: 'underline',
-    padding: 0,
   },
-  withdrawConfirm: {
+  withdrawBox: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 10,
-    padding: '12px 16px',
+    gap: 12,
+    marginTop: 16,
+    padding: '14px 16px',
     borderRadius: 10,
     backgroundColor: '#FFF5F5',
     border: '1px solid #fecaca',
-    flex: 1,
   },
-  withdrawWarn: {
+  warnText: {
     fontSize: 13,
     color: '#ef4444',
   },
@@ -116,24 +141,47 @@ const styles = {
     display: 'flex',
     gap: 8,
   },
-  cancelBtn: {
-    padding: '7px 16px',
-    borderRadius: 8,
-    border: '1.5px solid #d1d5db',
-    backgroundColor: '#ffffff',
-    color: '#374151',
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
+}
+
+const modal = {
+  overlay: {
+    position: 'fixed',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
   },
-  confirmWithdrawBtn: {
-    padding: '7px 16px',
-    borderRadius: 8,
-    border: 'none',
-    backgroundColor: '#ef4444',
-    color: '#ffffff',
+  box: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: '36px 32px',
+    maxWidth: 380,
+    width: '90%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 12,
+    boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: '#111827',
+    marginTop: 4,
+  },
+  desc: {
     fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 1.7,
+  },
+  btnRow: {
+    display: 'flex',
+    gap: 10,
+    marginTop: 8,
+    width: '100%',
+    justifyContent: 'center',
   },
 }
