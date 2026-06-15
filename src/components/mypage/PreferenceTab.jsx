@@ -10,28 +10,75 @@ import SpecialFieldGrid from './SpecialFieldGrid'
 import KeywordTagInput from './KeywordTagInput'
 import PolicyPreviewSection from './PolicyPreviewSection'
 
-/* 2열 행 아코디언 — 헤더 하나로 좌우 두 컬럼을 함께 접고 펼침 */
-function RowAccordion({ title, icon, defaultOpen = true, children }) {
+/*
+ * RowAccordion
+ * - count: 헤더에 표시할 설정된 항목 수 (0이면 배지 숨김)
+ * - onSectionSave: 세부 저장 콜백
+ */
+function RowAccordion({ title, icon, count = 0, onSectionSave, defaultOpen = true, children }) {
   const [open, setOpen] = useState(defaultOpen)
+  const [secSave, setSecSave] = useState('idle')
+
+  const handleSectionSave = (e) => {
+    e.stopPropagation()
+    setSecSave('saved')
+    onSectionSave?.()
+    setTimeout(() => setSecSave('idle'), 2000)
+  }
 
   return (
     <div style={row.wrap}>
+      {/* 헤더 */}
       <button type="button" style={row.header} onClick={() => setOpen(v => !v)}>
         <div style={row.left}>
           <span className="material-symbols-rounded" style={{ fontSize: 16, color: '#1D4ED8' }}>{icon}</span>
           <span style={row.title}>{title}</span>
+          {count > 0 && (
+            <span style={row.countBadge}>{count}개 설정됨</span>
+          )}
         </div>
-        <span
-          className="material-symbols-rounded"
-          style={{ fontSize: 20, color: '#9ca3af', transition: 'transform 0.2s', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-        >
-          expand_more
-        </span>
+        <div style={row.right}>
+          <span style={row.toggleHint}>{open ? '접기' : '펼치기'}</span>
+          <span
+            className="material-symbols-rounded"
+            style={{ fontSize: 20, color: '#9ca3af', transition: 'transform 0.2s', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+          >
+            expand_more
+          </span>
+        </div>
       </button>
 
+      {/* 콘텐츠 */}
       {open && (
-        <div style={row.body}>
-          {children}
+        <>
+          <div style={row.body}>
+            {children}
+          </div>
+
+          {/* 세부 저장 바 */}
+          <div style={row.sectionSaveBar}>
+            <button
+              type="button"
+              style={secSave === 'saved' ? row.secBtnSaved : row.secBtn}
+              onClick={handleSectionSave}
+            >
+              {secSave === 'saved'
+                ? <><span className="material-symbols-rounded" style={{ fontSize: 14 }}>check_circle</span> 저장됨</>
+                : <><span className="material-symbols-rounded" style={{ fontSize: 14 }}>save</span> 이 조건 저장</>
+              }
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* 접혔을 때 요약 바 */}
+      {!open && count > 0 && (
+        <div style={row.collapsedSummary}>
+          <span className="material-symbols-rounded" style={{ fontSize: 14, color: '#9ca3af' }}>info</span>
+          <span style={row.collapsedText}>{count}개 항목이 설정되어 있습니다</span>
+          <button type="button" style={row.expandBtn} onClick={() => setOpen(true)}>
+            펼쳐서 확인
+          </button>
         </div>
       )}
     </div>
@@ -60,12 +107,83 @@ const row = {
     borderBottom: '1px solid #f0f0f0',
     cursor: 'pointer',
   },
-  left: { display: 'flex', alignItems: 'center', gap: 6 },
+  left: { display: 'flex', alignItems: 'center', gap: 8 },
+  right: { display: 'flex', alignItems: 'center', gap: 6 },
   title: { fontSize: 14, fontWeight: 700, color: '#374151' },
+  countBadge: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#1D4ED8',
+    backgroundColor: '#EFF6FF',
+    border: '1px solid #BFDBFE',
+    padding: '2px 8px',
+    borderRadius: 20,
+  },
+  toggleHint: {
+    fontSize: 11,
+    color: '#9ca3af',
+    fontWeight: 500,
+  },
   body: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: 0,
+  },
+  sectionSaveBar: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '10px 20px',
+    borderTop: '1px solid #f3f4f6',
+    backgroundColor: '#fafafa',
+  },
+  secBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 5,
+    padding: '7px 16px',
+    borderRadius: 8,
+    border: '1.5px solid #d1d5db',
+    backgroundColor: '#ffffff',
+    color: '#374151',
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+  },
+  secBtnSaved: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 5,
+    padding: '7px 16px',
+    borderRadius: 8,
+    border: '1.5px solid #BBF7D0',
+    backgroundColor: '#F0FDF4',
+    color: '#15803D',
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+  },
+  collapsedSummary: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '8px 20px',
+    backgroundColor: '#f8fafc',
+    borderTop: '1px solid #f3f4f6',
+  },
+  collapsedText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    flex: 1,
+  },
+  expandBtn: {
+    fontSize: 12,
+    color: '#1D4ED8',
+    fontWeight: 600,
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '0 4px',
+    textDecoration: 'underline',
   },
 }
 
@@ -98,11 +216,23 @@ export default function PreferenceTab({ prefs, onChange, onSave, refreshKey }) {
     setTimeout(() => setSaveState('idle'), 2200)
   }
 
+  // 각 아코디언의 설정 항목 수 계산
+  const count1 = [prefs.sido, prefs.age, prefs.maritalStatus, prefs.education, prefs.employmentStatus]
+    .filter(v => v && v !== '').length +
+    ((prefs.incomeMin || prefs.incomeMax) ? 1 : 0)
+
+  const count2 = prefs.majorFields.length + prefs.specialFields.length
+
   return (
     <div style={styles.wrapper}>
 
-      {/* 행 아코디언 1 — 기본 조건 + 학력/취업 */}
-      <RowAccordion title="기본 조건  ·  학력 / 취업 상태" icon="tune">
+      {/* 행 아코디언 1 */}
+      <RowAccordion
+        title="기본 조건  ·  학력 / 취업 상태"
+        icon="tune"
+        count={count1}
+        onSectionSave={onSave}
+      >
         <div style={colStyle}>
           <LocationSelect
             sido={prefs.sido}
@@ -129,8 +259,13 @@ export default function PreferenceTab({ prefs, onChange, onSave, refreshKey }) {
         </div>
       </RowAccordion>
 
-      {/* 행 아코디언 2 — 전공 분야 + 특화 분야 */}
-      <RowAccordion title="전공 분야  ·  특화 분야" icon="category">
+      {/* 행 아코디언 2 */}
+      <RowAccordion
+        title="전공 분야  ·  특화 분야"
+        icon="category"
+        count={count2}
+        onSectionSave={onSave}
+      >
         <div style={colStyle}>
           <MajorFieldGrid value={prefs.majorFields} onChange={update('majorFields')} />
         </div>
@@ -144,15 +279,15 @@ export default function PreferenceTab({ prefs, onChange, onSave, refreshKey }) {
         <KeywordTagInput value={prefs.keywords} onChange={update('keywords')} />
       </div>
 
-      {/* 저장 버튼 */}
+      {/* 전체 저장 버튼 */}
       <button
         style={saveState === 'saved' ? styles.saveBtnSaved : styles.saveBtn}
         onClick={handleSave}
         type="button"
       >
         {saveState === 'saved'
-          ? <><span className="material-symbols-rounded" style={{ fontSize: 18 }}>check_circle</span> 저장되었습니다</>
-          : <><span className="material-symbols-rounded" style={{ fontSize: 18 }}>save</span> 조건 저장하기</>
+          ? <><span className="material-symbols-rounded" style={{ fontSize: 18 }}>check_circle</span> 전체 저장 완료</>
+          : <><span className="material-symbols-rounded" style={{ fontSize: 18 }}>save</span> 전체 저장하기</>
         }
       </button>
 
