@@ -46,11 +46,18 @@ export default function MyPageContainer() {
       <div style={styles.inner}>
         <PageHeader />
 
-        {/* 프로필 요약 바 */}
+        {/* 프로필 바 — 유저 정보 전체 */}
         <div style={styles.profileBar}>
-          <div>
+          <div style={styles.profileLeft}>
             <div style={styles.userName}>{user.name}</div>
             <div style={styles.userEmail}>{user.email}</div>
+          </div>
+          <div style={styles.profileMeta}>
+            <MetaItem icon="call" label="전화번호" value={user.phone} />
+            <div style={styles.metaDivider} />
+            <MetaItem icon="calendar_today" label="가입일" value={user.joinDate.replace(/-/g, '.')} />
+            <div style={styles.metaDivider} />
+            <MetaItem icon="login" label="최근 로그인" value={user.lastLogin.replace(/-/g, '.')} />
           </div>
         </div>
 
@@ -79,6 +86,22 @@ export default function MyPageContainer() {
   )
 }
 
+function MetaItem({ icon, label, value }) {
+  return (
+    <div style={metaItem.wrap}>
+      <span className="material-symbols-rounded" style={{ fontSize: 14, color: '#9ca3af' }}>{icon}</span>
+      <span style={metaItem.label}>{label}</span>
+      <span style={metaItem.value}>{value}</span>
+    </div>
+  )
+}
+
+const metaItem = {
+  wrap: { display: 'flex', alignItems: 'center', gap: 5 },
+  label: { fontSize: 12, color: '#9ca3af', fontWeight: 500 },
+  value: { fontSize: 13, color: '#374151', fontWeight: 600 },
+}
+
 const styles = {
   page: {
     minHeight: '100vh',
@@ -95,26 +118,30 @@ const styles = {
   profileBar: {
     display: 'flex',
     alignItems: 'center',
-    gap: 16,
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
     backgroundColor: '#ffffff',
     borderRadius: 16,
     border: '1px solid #e5e7eb',
     padding: '20px 28px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
   },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: '50%',
-    backgroundColor: '#EFF6FF',
-    border: '2px solid #BFDBFE',
+  profileLeft: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+  },
+  profileMeta: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 22,
-    fontWeight: 700,
-    color: '#1D4ED8',
-    flexShrink: 0,
+    gap: 12,
+    flexWrap: 'wrap',
+  },
+  metaDivider: {
+    width: 1,
+    height: 14,
+    backgroundColor: '#e5e7eb',
   },
   userName: {
     fontSize: 17,
@@ -124,7 +151,6 @@ const styles = {
   userEmail: {
     fontSize: 13,
     color: '#9ca3af',
-    marginTop: 2,
   },
   tabContainer: {
     borderRadius: 16,

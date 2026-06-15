@@ -1,6 +1,6 @@
 const TABS_LEFT = [
-  { id: 'info',  icon: 'person',  label: '내 정보' },
-  { id: 'prefs', icon: 'tune',    label: '맞춤 조건' },
+  { id: 'info',  icon: 'calendar_month', label: '신청 내역' },
+  { id: 'prefs', icon: 'tune',           label: '맞춤 조건' },
 ]
 
 const TAB_RIGHT = { id: 'settings', icon: 'manage_accounts', label: '계정 관리' }
